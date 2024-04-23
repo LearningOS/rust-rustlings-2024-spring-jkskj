@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,37 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        self.percolate_up(self.count);
+    }
+
+    fn percolate_up(&mut self, idx: usize) {
+        let mut child_idx = idx;
+        let mut parent_idx = self.parent_idx(child_idx);
+
+        while parent_idx > 0 && (self.comparator)(&self.items[child_idx], &self.items[parent_idx]) {
+            self.items.swap(child_idx, parent_idx);
+            child_idx = parent_idx;
+            parent_idx = self.parent_idx(child_idx);
+        }
+    }
+
+    fn percolate_down(&mut self, idx: usize) {
+        let mut parent_idx = idx;
+        loop {
+            let smallest_child_idx = self.smallest_child_idx(parent_idx);
+            if smallest_child_idx > self.count {
+                break;
+            }
+
+            if (self.comparator)(&self.items[smallest_child_idx], &self.items[parent_idx]) {
+                self.items.swap(parent_idx, smallest_child_idx);
+                parent_idx = smallest_child_idx;
+            } else {
+                break;
+            }
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +88,16 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let left_child_idx = self.left_child_idx(idx);
+        let right_child_idx = self.right_child_idx(idx);
+
+        if right_child_idx > self.count
+            || (self.comparator)(&self.items[left_child_idx], &self.items[right_child_idx])
+        {
+            left_child_idx
+        } else {
+            right_child_idx
+        }
     }
 }
 
@@ -85,7 +124,15 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+        if self.is_empty() {
+            return None;
+        }
+
+        let root = self.items.swap_remove(1);
+        self.count -= 1;
+        self.percolate_down(1);
+
+        Some(root)
     }
 }
 
